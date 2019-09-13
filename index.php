@@ -4,17 +4,32 @@ include('config/connection.php');
 //soumition du formaulaire
 if(isset($_POST['submit'])){
   //test sur le donnée à soumèttre 
-    if(isset($_POST['nom']) && $_POST['nom']){
-        if(isset($_POST['postnom']) && $_POST['postnom']){
-                    //affectation de variable
-                    $mail = htmlspecialchars($_POST['mail']);
-                    $mdp = htmlspecialchars($_POST['mdp']);
-                    
-                    //insertion dans la base de donneés
-                    $insert = $pdo->prepare('INSERT INTO student (nom,postnom,promotion,universite) VALUES (?,?,?,?)');
-                    $insert->execute(array($nom,$postnom,$promotion,$universite));
-                    $succe = "Votre enregistrement à reussit";
-               
+    if(isset($_POST['email']) && $_POST['email']){
+        if(isset($_POST['mdp']) && $_POST['mdp']){
+            if(filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
+
+              //affectation de variable
+              $email = htmlspecialchars($_POST['email']);
+              $mdp = htmlspecialchars($_POST['mdp']);
+              
+              //verification des information de l'utilisateur dans la base de donneés
+
+              $verif = $pdo->prepare('SELECT * FROM client WHERE nom = ?');
+              $verif->execute(array($email));
+              $verif_ok = $verif->rowCount();
+              if($verif_ok === 1){
+                  $postnom = $verif->fetch();
+                  $nom = $postnom['nom'];
+                  $postnom = $postnom['postnom'];
+                  $_SESSION['email'] = $nom;
+                  $_SESSION['mdp'] = $postnom;
+                  header('Location: view/admin.php');
+              }else{
+                $error = "Votre adresse e-mail est incorrect";
+              }
+            } else{
+              $error = "Veuillez taper une adresse e-mail valide";
+            }                     
         }else{
             $error = "Veuillez saisir votre mot de passe";
         }
@@ -45,7 +60,7 @@ if(isset($_POST['submit'])){
                           ?>
                             <form action="" method="post" role="form" class="contactForm">
                               <div class="form-group">
-                                <input type="email" name="email" class="form-control">
+                                <input type="text" name="email" class="form-control">
                               </div>
                               <div class="form-group">
                                 <input type="password" name="mdp" class="form-control" id="mdp">
