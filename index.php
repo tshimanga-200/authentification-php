@@ -14,16 +14,16 @@ if(isset($_POST['submit'])){
               
               //verification des information de l'utilisateur dans la base de donneés
 
-              $verif = $pdo->prepare('SELECT * FROM client WHERE nom = ?');
+              $verif = $pdo->prepare('SELECT * FROM client WHERE email = ?');
               $verif->execute(array($email));
               $verif_ok = $verif->rowCount();
               if($verif_ok === 1){
-                  $postnom = $verif->fetch();
-                  $nom = $postnom['nom'];
-                  $postnom = $postnom['postnom'];
-                  $_SESSION['email'] = $nom;
-                  $_SESSION['mdp'] = $postnom;
-                  header('Location: view/admin.php');
+                  $user = $verif->fetch();
+                  $email = $user['email'];
+                  $mdp = $user['mdp'];
+                  $_SESSION['email'] = $email;
+                  $_SESSION['mdp'] = $mdp;
+                  header('Location: views/admin.php');
               }else{
                 $error = "Votre adresse e-mail est incorrect";
               }
